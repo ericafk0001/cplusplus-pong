@@ -3,6 +3,11 @@
 
 using namespace std;
 
+Color backgroundColor = Color{23, 23, 23, 255};
+
+int player_score = 0;
+int cpu_score = 0;
+
 class Ball
 {
 public:
@@ -24,10 +29,28 @@ public:
         {
             speed_y *= -1;
         }
-        if (x + radius >= GetScreenWidth() || x - radius <= 0)
+        if (x + radius >= GetScreenWidth())
         {
-            speed_x *= -1;
+            cpu_score++;
+            cout << "CPU SCORE!!!!" << endl;
+            ResetBall();
         }
+        if (x - radius <= 0)
+        {
+            player_score++;
+            cout << "Player SCORE!!!!" << endl;
+            ResetBall();
+        }
+    }
+
+    void ResetBall()
+    {
+        x = GetScreenWidth() / 2;
+        y = GetScreenWidth() / 2;
+
+        int speed_choices[2] = {-1, 1};
+        speed_x *= speed_choices[GetRandomValue(0, 1)];
+        speed_y *= speed_choices[GetRandomValue(0, 1)];
     }
 };
 
@@ -55,7 +78,7 @@ public:
 
     void Draw()
     {
-        DrawRectangle(x, y, width, height, WHITE);
+        DrawRectangleRounded(Rectangle{x, y, width, height}, 0.8, 0, WHITE);
     }
 
     void Update()
@@ -137,11 +160,13 @@ int main()
             ball.speed_x *= -1;
         }
 
-        ClearBackground(BLACK);
+        ClearBackground(backgroundColor);
         DrawLine(screen_width / 2, 0, screen_width / 2, screen_height, WHITE);
         ball.Draw();
         cpu.Draw();
         player.Draw();
+        DrawText(TextFormat("%i", cpu_score), screen_width / 4 - 20, 20, 80, WHITE);
+        DrawText(TextFormat("%i", player_score), 3 * screen_width / 4 - 20, 20, 80, WHITE);
         EndDrawing();
     }
 
