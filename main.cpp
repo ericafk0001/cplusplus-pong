@@ -33,6 +33,21 @@ public:
 
 class Paddle
 {
+
+protected:
+    void LimitMovement()
+    {
+        // prevent paddle from going outside
+        if (y <= 0)
+        {
+            y = 0;
+        }
+        if (y + height >= GetScreenHeight())
+        {
+            y = GetScreenHeight() - height;
+        }
+    }
+
 public:
     float x, y;
     float width, height;
@@ -53,15 +68,34 @@ public:
         {
             y = y + speed;
         }
+        LimitMovement();
+    }
+};
+
+class cpuPaddle : public Paddle
+{
+public:
+    void Update(int ball_y)
+    {
+        if (y + height / 2 > ball_y)
+        {
+            y = y - speed;
+        }
+        if (y + height / 2 <= ball_y)
+        {
+            y = y + speed;
+        }
+        LimitMovement();
     }
 };
 
 Ball ball;
 Paddle player;
+cpuPaddle cpu;
 
 int main()
 {
-    cout << "Start" << endl;
+    cout << "Game Loaded" << endl;
     const int screen_width = 1280;
     const int screen_height = 800;
     InitWindow(screen_width, screen_height, "Pong!");
@@ -79,17 +113,25 @@ int main()
     player.y = screen_height / 2 - player.height / 2;
     player.speed = 6;
 
+    cpu.width = 25;
+    cpu.height = 120;
+    cpu.x = 10;
+    cpu.y = screen_height / 2 - cpu.height / 2;
+    cpu.speed = 6;
+
+    // game loop
     while (WindowShouldClose() == false)
     {
         BeginDrawing();
 
         ball.Update();
         player.Update();
+        cpu.Update(ball.y);
 
         ClearBackground(BLACK);
         DrawLine(screen_width / 2, 0, screen_width / 2, screen_height, WHITE);
         ball.Draw();
-        DrawRectangle(10, screen_height / 2 - 60, 25, 120, WHITE);
+        cpu.Draw();
         player.Draw();
         EndDrawing();
     }
